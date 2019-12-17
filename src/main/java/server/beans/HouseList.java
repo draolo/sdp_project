@@ -32,8 +32,14 @@ public class HouseList {
         return new ArrayList<>(houseList);
     }
 
-    public synchronized void  add(HouseInfo h){
-        houseList.add(h);
+    public synchronized boolean add(HouseInfo newHouse){
+        for(HouseInfo h: houseList) {
+            if (h.getId()==newHouse.getId()) {
+                return false;
+            }
+        }
+        houseList.add(newHouse);
+        return true;
     }
 
     public synchronized boolean del(int id) {
