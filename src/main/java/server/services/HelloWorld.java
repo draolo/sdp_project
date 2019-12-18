@@ -11,11 +11,11 @@ public class HelloWorld {
     @GET
     @Produces("text/plain")
     public String helloWorld(){
-        try {
+        /*try {
             Thread.sleep(60*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
         return "Hello world!";
 
     }
@@ -24,7 +24,6 @@ public class HelloWorld {
     @Path("{name}")
     @Produces("text/plain")
     public String helloWorldName(@PathParam("name") String name){
-
         return "Hello, "+name+"!";
 
     }

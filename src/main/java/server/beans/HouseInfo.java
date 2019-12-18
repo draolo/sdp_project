@@ -10,6 +10,11 @@ public class HouseInfo {
     private String ip;
     // TODO: 17/12/2019 choose if use ip as string or INetAddress
 
+
+    public HouseInfo(){
+
+    }
+
     public HouseInfo(int id, int port, String ip) {
         this.id = id;
         this.port = port;
@@ -26,5 +31,17 @@ public class HouseInfo {
 
     public String getIp() {
         return ip;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }
