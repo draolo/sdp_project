@@ -44,4 +44,13 @@ public class HouseInfo {
     public void setIp(String ip) {
         this.ip = ip;
     }
+
+    @Override
+    public String toString() {
+        return "HouseInfo{" +
+                "id=" + id +
+                ", port=" + port +
+                ", ip='" + ip + '\'' +
+                '}';
+    }
 }
