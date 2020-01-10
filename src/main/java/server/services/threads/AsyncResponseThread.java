@@ -12,7 +12,7 @@ public abstract class AsyncResponseThread extends Thread{
 
     @Override
     public void run() {
-        Response result = null;
+        Response result;
         result = operation();
         response.resume(result);
     }
