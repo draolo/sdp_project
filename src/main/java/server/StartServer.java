@@ -4,9 +4,6 @@ package server;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import server.services.HelloWorld;
-import server.services.HouseManager;
-import server.services.MeasurementsManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,7 +19,9 @@ public class StartServer {
     public static void main(String[] args) throws IOException, URISyntaxException {
         String BASE_URI ="http://"+HOST+":"+PORT+"/";
         URI uri=new URI(BASE_URI);
-        final ResourceConfig rc = new ResourceConfig(HelloWorld.class, HouseManager.class, MeasurementsManager.class);
+        //final ResourceConfig rc = new ResourceConfig(HelloWorld.class, HouseManager.class, MeasurementsManager.class);
+        final ResourceConfig rc = new ResourceConfig();
+        rc.packages("server.services");
         final Map<String, Object> config = new HashMap<>();
         config.put("com.sun.jersey.api.json.POJOMappingFeature", true);
         rc.addProperties(config);
