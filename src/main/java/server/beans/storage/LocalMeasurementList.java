@@ -8,10 +8,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @XmlRootElement
 @XmlAccessorType (XmlAccessType.FIELD)
@@ -42,6 +39,19 @@ public class LocalMeasurementList {
         measurements.add(stat);
         stats.put(id, measurements);
         return true;
+    }
+
+    public List<LocalMeasurement> getLastMeasurements(int id, int limit) {
+        Map<Integer, List<LocalMeasurement>> map= LocalMeasurementList.getInstance().getStats();
+        List<LocalMeasurement> list= map.get(id);
+        if (list==null){
+            list=new ArrayList<>();
+        }
+        Collections.sort(list);
+        if(limit >0&& limit <list.size()){
+            list=list.subList(0, limit);
+        }
+        return list;
     }
 
 }

@@ -6,10 +6,7 @@ import server.services.threads.AsyncResponseThread;
 
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class GetLocalMeasurementsThread extends AsyncResponseThread {
     int id;
@@ -23,16 +20,9 @@ public class GetLocalMeasurementsThread extends AsyncResponseThread {
 
     @Override
     protected Response operation() {
-        Map<Integer, List<LocalMeasurement>>  map= LocalMeasurementList.getInstance().getStats();
-        List<LocalMeasurement> list= map.get(id);
-        if (list==null){
-            //return Response.status(Response.Status.NOT_FOUND).build();
-            list=new ArrayList<>();
-        }
-        Collections.sort(list);
-        if(limit>0&&limit<list.size()){
-            list=list.subList(0,limit);
-        }
+        List<LocalMeasurement> list = LocalMeasurementList.getInstance().getLastMeasurements(id, limit);
         return Response.ok(list).build();
     }
+
+
 }

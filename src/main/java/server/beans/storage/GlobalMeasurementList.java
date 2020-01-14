@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement
@@ -37,6 +38,15 @@ public class GlobalMeasurementList {
     public synchronized boolean add(GlobalMeasurement stat){
         return stats.add(stat);
 
+    }
+
+    public List<GlobalMeasurement> getLastMeasurements(int limit) {
+        List<GlobalMeasurement> list= GlobalMeasurementList.getInstance().getStats();
+        Collections.sort(list);
+        if(limit >0&& limit <list.size()){
+            list=list.subList(0, limit);
+        }
+        return list;
     }
 
 }
