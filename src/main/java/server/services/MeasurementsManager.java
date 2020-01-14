@@ -1,7 +1,7 @@
 package server.services;
 
-import server.beans.comunication.GlobalStat;
-import server.beans.comunication.LocalStat;
+import server.beans.comunication.GlobalMeasurement;
+import server.beans.comunication.LocalMeasurement;
 import server.services.threads.measurementmanager.AddGlobalMeasurementsThread;
 import server.services.threads.measurementmanager.AddLocalMeasurementsThread;
 
@@ -19,14 +19,14 @@ public class MeasurementsManager {
     @Path("global")
     @POST
     @Consumes({"application/json", "application/xml"})
-    public void addGlobal(@Suspended final AsyncResponse asyncResponse, GlobalStat g){
+    public void addGlobal(@Suspended final AsyncResponse asyncResponse, GlobalMeasurement g){
         new AddGlobalMeasurementsThread(asyncResponse,g).start();
     }
 
     @Path("local")
     @POST
     @Consumes({"application/json", "application/xml"})
-    public void addLocal(@Suspended final AsyncResponse asyncResponse, LocalStat l){
+    public void addLocal(@Suspended final AsyncResponse asyncResponse, LocalMeasurement l){
         new AddLocalMeasurementsThread(asyncResponse,l).start();
     }
 

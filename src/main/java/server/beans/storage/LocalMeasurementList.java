@@ -2,7 +2,7 @@ package server.beans.storage;
 
 
 
-import server.beans.comunication.LocalStat;
+import server.beans.comunication.LocalMeasurement;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,30 +15,30 @@ import java.util.Map;
 
 @XmlRootElement
 @XmlAccessorType (XmlAccessType.FIELD)
-public class LocalStats {
+public class LocalMeasurementList {
 
     @XmlElement(name="local")
-    private Map<Integer, List<LocalStat>> stats;
-    private static LocalStats instance;
+    private Map<Integer, List<LocalMeasurement>> stats;
+    private static LocalMeasurementList instance;
 
-    private LocalStats() {
+    private LocalMeasurementList() {
         stats = new HashMap<>();
     }
 
     //singleton
-    public synchronized static LocalStats getInstance(){
+    public synchronized static LocalMeasurementList getInstance(){
         if(instance==null)
-            instance = new LocalStats();
+            instance = new LocalMeasurementList();
         return instance;
     }
 
-    public synchronized Map<Integer,List<LocalStat>> getStats() {
+    public synchronized Map<Integer,List<LocalMeasurement>> getStats() {
         return new HashMap<>(stats);
     }
 
-    public synchronized boolean add(LocalStat stat){
+    public synchronized boolean add(LocalMeasurement stat){
         int id=stat.getId();
-        List<LocalStat> measurements=stats.getOrDefault(id,new ArrayList<>());
+        List<LocalMeasurement> measurements=stats.getOrDefault(id,new ArrayList<>());
         measurements.add(stat);
         stats.put(id, measurements);
         return true;

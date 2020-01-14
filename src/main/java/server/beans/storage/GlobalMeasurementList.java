@@ -2,7 +2,7 @@ package server.beans.storage;
 
 
 
-import server.beans.comunication.GlobalStat;
+import server.beans.comunication.GlobalMeasurement;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,28 +13,28 @@ import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType (XmlAccessType.FIELD)
-public class GlobalStats {
+public class GlobalMeasurementList {
 
     @XmlElement(name="global")
-    private List<GlobalStat> stats;
-    private static GlobalStats instance;
+    private List<GlobalMeasurement> stats;
+    private static GlobalMeasurementList instance;
 
-    private GlobalStats() {
+    private GlobalMeasurementList() {
         stats = new ArrayList<>();
     }
 
     //singleton
-    public synchronized static GlobalStats getInstance(){
+    public synchronized static GlobalMeasurementList getInstance(){
         if(instance==null)
-            instance = new GlobalStats();
+            instance = new GlobalMeasurementList();
         return instance;
     }
 
-    public synchronized List<GlobalStat> getStats() {
+    public synchronized List<GlobalMeasurement> getStats() {
         return new ArrayList<>(stats);
     }
 
-    public synchronized boolean add(GlobalStat stat){
+    public synchronized boolean add(GlobalMeasurement stat){
         return stats.add(stat);
 
     }

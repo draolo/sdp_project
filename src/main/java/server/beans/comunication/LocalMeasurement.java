@@ -3,20 +3,30 @@ package server.beans.comunication;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class GlobalStat {
+public class LocalMeasurement implements Comparable<LocalMeasurement> {
 
+    private int id;
     private double value;
     private long timestamp;
 
 
-    public GlobalStat(){
+    public LocalMeasurement(){
 
     }
 
 
-    public GlobalStat(double value, long timestamp) {
+    public LocalMeasurement(int id, double value, long timestamp) {
+        this.id = id;
         this.value = value;
         this.timestamp = timestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public double getValue() {
@@ -37,10 +47,19 @@ public class GlobalStat {
 
     @Override
     public String toString() {
-        return "GlobalStat{" +
+        return "LocalStat{" +
+                "id=" + id +
                 ", value=" + value +
                 ", timestamp='" + timestamp + '\'' +
                 '}';
+    }
+
+    //sort from new to old
+    @Override
+    public int compareTo(LocalMeasurement l) {
+        Long thisTimestamp = timestamp;
+        Long otherTimestamp = l.getTimestamp();
+        return (-1)*thisTimestamp.compareTo(otherTimestamp);
     }
 }
 
