@@ -1,4 +1,4 @@
-package server.beans;
+package server.beans.comunication;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

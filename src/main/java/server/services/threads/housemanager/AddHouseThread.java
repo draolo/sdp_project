@@ -1,7 +1,7 @@
 package server.services.threads.housemanager;
 
-import server.beans.HouseInfo;
-import server.beans.HouseList;
+import server.beans.comunication.HouseInfo;
+import server.beans.storage.HouseList;
 import server.services.threads.AsyncResponseThread;
 
 import javax.ws.rs.container.AsyncResponse;

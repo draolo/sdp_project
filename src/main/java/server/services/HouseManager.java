@@ -1,6 +1,6 @@
 package server.services;
 
-import server.beans.HouseInfo;
+import server.beans.comunication.HouseInfo;
 import server.services.threads.housemanager.AddHouseThread;
 import server.services.threads.housemanager.DeleteHouseThread;
 import server.services.threads.housemanager.GetHouseListThread;

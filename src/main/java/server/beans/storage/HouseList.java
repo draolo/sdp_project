@@ -1,6 +1,8 @@
-package server.beans;
+package server.beans.storage;
 
 
+
+import server.beans.comunication.HouseInfo;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,8 +40,7 @@ public class HouseList {
                 return false;
             }
         }
-        houseList.add(newHouse);
-        return true;
+        return houseList.add(newHouse);
     }
 
     public synchronized boolean del(int id) {
