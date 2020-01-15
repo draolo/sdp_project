@@ -11,22 +11,22 @@ import javax.ws.rs.core.Response;
 public class HouseManager {
 
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getList() {
-        return Response.ok(HouseList.getInstance()).build();
+        return Response.ok(HouseList.getInstance().getHouseList()).build();
     }
 
     @Path("add")
     @POST
-    @Consumes({"application/json", "application/xml"})
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
     public Response addHouse(HouseInfo h){
-        return HouseList.getInstance().add(h)?Response.ok(HouseList.getInstance()).build():Response.status(Response.Status.CONFLICT).build();
+        return HouseList.getInstance().add(h)?Response.ok(HouseList.getInstance().getHouseList()).build():Response.status(Response.Status.CONFLICT).build();
     }
 
 
     @Path("del/{id}")
     @DELETE
-    @Consumes({"application/json", "application/xml"})
     public Response delHouse(@PathParam("id") int id){
         if(HouseList.getInstance().del(id)){
             return Response.ok().build();

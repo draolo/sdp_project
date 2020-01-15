@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement
+@XmlRootElement(name = "houseList")
 @XmlAccessorType (XmlAccessType.FIELD)
 public class HouseList {
 

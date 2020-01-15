@@ -17,14 +17,14 @@ public class MeasurementsManager {
 
     @Path("global")
     @POST
-    @Consumes({"application/json", "application/xml"})
+    @Consumes({"application/json"})
     public Response addGlobal(GlobalMeasurement g){
         return GlobalMeasurementList.getInstance().add(g)? Response.ok().build():Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
     @Path("local")
     @POST
-    @Consumes({"application/json", "application/xml"})
+    @Consumes({"application/json"})
     public Response addLocal(LocalMeasurement l){
         // TODO: 14/01/2020 in a real world scenario we could check if the house is part of the network and make a little bit of validation based on the timestamp
         return LocalMeasurementList.getInstance().add(l)?Response.ok().build():Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

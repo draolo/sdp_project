@@ -21,14 +21,14 @@ public class AdminService {
 
     @Path("list")
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getList() {
         return Response.ok(HouseList.getInstance()).build();
     }
 
     @Path("local/{id}/{limit}")
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getLocalMeasurement(@PathParam("id") int id, @PathParam("limit") int limit){
         List<LocalMeasurement> list = LocalMeasurementList.getInstance().getLastMeasurements(id, limit);
         return Response.ok(list).build();
@@ -36,7 +36,7 @@ public class AdminService {
 
     @Path("global/{limit}")
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getGlobalMeasurement(@PathParam("limit") int limit){
         List<GlobalMeasurement > list = GlobalMeasurementList.getInstance().getLastMeasurements(limit);
         return Response.ok(list).build();
@@ -44,7 +44,7 @@ public class AdminService {
 
     @Path("local/stats/{id}/{limit}")
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getLocalStats(@PathParam("id") int id, @PathParam("limit") int limit){
         List<LocalMeasurement> list = LocalMeasurementList.getInstance().getLastMeasurements(id, limit);
         double mean= Statistics.getMean(list);
@@ -55,7 +55,7 @@ public class AdminService {
 
     @Path("global/stats/{limit}")
     @GET
-    @Produces({"application/json", "application/xml"})
+    @Produces({"application/json"})
     public Response getGlobalStats(@PathParam("limit") int limit){
         List<GlobalMeasurement> list = GlobalMeasurementList.getInstance().getLastMeasurements(limit);
         double mean= Statistics.getMean(list);
