@@ -1,6 +1,7 @@
 package server.services;
 
 import server.services.threads.admin.GetGlobalMeasurementsThread;
+import server.services.threads.admin.GetGlobalStatsThread;
 import server.services.threads.admin.GetLocalMeasurementsThread;
 import server.services.threads.admin.GetLocalStatsThread;
 import server.services.threads.housemanager.GetHouseListThread;
@@ -40,20 +41,12 @@ public class AdminService {
     public void getLocalStats(@Suspended final AsyncResponse asyncResponse,@PathParam("id") int id, @PathParam("limit") int limit){
         new GetLocalStatsThread(asyncResponse,id, limit).start();
     }
-/*
+
     @Path("global/stats/{limit}")
     @GET
     @Produces({"application/json", "application/xml"})
     public void getGlobalStats(@Suspended final AsyncResponse asyncResponse, @PathParam("limit") int limit){
-        new AddHouseThread(asyncResponse,u).start();
+        new GetGlobalStatsThread(asyncResponse,limit).start();
     }
 
-    @Path("del/{id}")
-    @DELETE
-    @Consumes({"application/json", "application/xml"})
-    public void delHouse(@Suspended final AsyncResponse asyncResponse, @PathParam("id") int id){
-        new DeleteHouseThread(asyncResponse,id).start();
-    }
-
-*/
 }
