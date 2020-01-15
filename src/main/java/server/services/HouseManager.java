@@ -1,13 +1,10 @@
 package server.services;
 
 import server.beans.comunication.HouseInfo;
-import server.services.threads.housemanager.AddHouseThread;
-import server.services.threads.housemanager.DeleteHouseThread;
-import server.services.threads.housemanager.GetHouseListThread;
+import server.beans.storage.HouseList;
 
 import javax.ws.rs.*;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Response;
 
 
 @Path("house-manager")
@@ -15,23 +12,26 @@ public class HouseManager {
 
     @GET
     @Produces({"application/json", "application/xml"})
-    public void getList(@Suspended final AsyncResponse asyncResponse) {
-        new GetHouseListThread(asyncResponse).start();
+    public Response getList() {
+        return Response.ok(HouseList.getInstance()).build();
     }
 
     @Path("add")
     @POST
     @Consumes({"application/json", "application/xml"})
-    public void addHouse(@Suspended final AsyncResponse asyncResponse,HouseInfo u){
-        new AddHouseThread(asyncResponse,u).start();
+    public Response addHouse(HouseInfo h){
+        return HouseList.getInstance().add(h)?Response.ok(HouseList.getInstance()).build():Response.status(Response.Status.CONFLICT).build();
     }
 
 
     @Path("del/{id}")
     @DELETE
     @Consumes({"application/json", "application/xml"})
-    public void delHouse(@Suspended final AsyncResponse asyncResponse, @PathParam("id") int id){
-        new DeleteHouseThread(asyncResponse,id).start();
+    public Response delHouse(@PathParam("id") int id){
+        if(HouseList.getInstance().del(id)){
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 
