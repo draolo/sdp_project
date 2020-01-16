@@ -3,7 +3,9 @@ package server.services;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
+import server.beans.comunication.GlobalMeasurement;
 import server.beans.comunication.HouseInfo;
+import server.beans.comunication.LocalMeasurement;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -82,21 +84,160 @@ public class ServerTest extends JerseyTest {
 
     @Test
     public void addHouseReturnTest() {
-        HouseInfo houseInfo= new HouseInfo(5,1240,"127.0.0.1");
+        final int thisHouseId = 5;
+        HouseInfo houseInfo= new HouseInfo(thisHouseId,1240,"127.0.0.1");
         Response response = target("/house-manager/add").request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(houseInfo, MediaType.APPLICATION_JSON_TYPE));
         HouseInfo[] list=response.readEntity(HouseInfo[].class);
         List<HouseInfo> l= Arrays.asList(list);
-        Predicate<HouseInfo> byId = house -> house.getId() == 5;
+        Predicate<HouseInfo> byId = house -> house.getId() == thisHouseId;
         List<HouseInfo> result = l.stream().filter(byId)
                 .collect(Collectors.toList());
         HouseInfo house2=result.get(0);
         assertEquals("result should contain the new house: ",house2.getIp(),houseInfo.getIp());
         assertEquals("result should contain the new house: ",house2.getId(),houseInfo.getId());
         assertEquals("result should contain the new house: ",house2.getPort(),houseInfo.getPort());
-
         assertTrue("result should contain the new house: ", list.length>=1);
     }
+
+    @Test
+    public void removeReallyRemove() {
+        final int thisHouseId = 6;
+        HouseInfo houseInfo= new HouseInfo(thisHouseId,1240,"127.0.0.1");
+        Response response = target("/house-manager/add").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(houseInfo, MediaType.APPLICATION_JSON_TYPE));
+        HouseInfo[] listBefore=response.readEntity(HouseInfo[].class);
+        List<HouseInfo> l= Arrays.asList(listBefore);
+        Predicate<HouseInfo> byId = house -> house.getId() == thisHouseId;
+        List<HouseInfo> result = l.stream().filter(byId)
+                .collect(Collectors.toList());
+        HouseInfo house2=result.get(0);
+        assertEquals("result should contain the new house: ",house2.getIp(),houseInfo.getIp());
+        target("/house-manager/del/6").request().delete();
+        response = target("/house-manager").request().get();
+        HouseInfo[] listAfter=response.readEntity(HouseInfo[].class);
+        l= Arrays.asList(listAfter);
+        result = l.stream().filter(byId)
+                .collect(Collectors.toList());
+        assertEquals("List should not contains the removed house",0, result.size());
+    }
+
+    @Test
+    public void localStatsAdd() {
+        final int thisHouseId = 7;
+        LocalMeasurement localMeasurement=new LocalMeasurement(thisHouseId,22.5,1234);
+        Response response = target("/measurements/local").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(localMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        assertEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
+        response = target("admin/local/"+thisHouseId+"/0").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        LocalMeasurement last=list[0];
+        assertEquals("the measurements must be the same",localMeasurement.getId(),last.getId());
+        assertEquals("the measurements must be the same",localMeasurement.getValue(),last.getValue(), 0);
+        assertEquals("the measurements must be the same",localMeasurement.getTimestamp(),last.getTimestamp());
+    }
+
+    @Test
+    public void localStatsLimitTest() {
+        final int thisHouseId = 8;
+        for (int timestamp=1000;timestamp<=2000;timestamp+=10){
+            LocalMeasurement localMeasurement=new LocalMeasurement(thisHouseId,22.5,timestamp);
+            target("/measurements/local").request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(localMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        }
+        Response response = target("admin/local/"+thisHouseId+"/7").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        assertEquals("list must have the same length of the limit ",7,list.length);
+        assertTrue("result must be sorted from newer to older",ServerTest.checkIfIsSorted(list));
+        LocalMeasurement localMeasurement=list[0];
+        assertEquals("last must be last ",2000,localMeasurement.getTimestamp());
+
+    }
+
+    @Test
+    public void noMeasurementsTest(){
+        final int thisHouseId = 9;
+        Response response = target("admin/local/"+thisHouseId+"/7").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        assertEquals("list must have length 0: ",0,list.length);
+
+    }
+
+    // TODO: 16/01/2020 decide if its a bug or a feature on negative value return the full list
+    /*
+    @Test
+    public void negativeMeasurementsLimitTest(){
+        final int thisHouseId = 10;
+        LocalMeasurement localMeasurement=new LocalMeasurement(thisHouseId,22.5,1234);
+        target("/measurements/local").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(localMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        Response response = target("admin/local/"+thisHouseId+"/-5").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        assertEquals("list must have length 0: ",0,list.length);
+    }
+*/
+    @Test
+    public void outOfBoundMeasurementsLimitTest(){
+        final int thisHouseId = 11;
+        LocalMeasurement localMeasurement=new LocalMeasurement(thisHouseId,22.5,1234);
+        target("/measurements/local").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(localMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        Response response = target("admin/local/"+thisHouseId+"/5").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        assertEquals("list must have length 0: ",1,list.length);
+    }
+
+
+
+    @Test
+    public void outOfBoundGlobalMeasurementsLimitTest(){
+        GlobalMeasurement globalMeasurement=new GlobalMeasurement(22.5,1);
+        target("/measurements/global").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(globalMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        Response response = target("admin/global/5000").request(MediaType.APPLICATION_JSON_TYPE).get();
+        LocalMeasurement[] list=response.readEntity(LocalMeasurement[].class);
+        assertTrue("list must have length 0: ",list.length<5000);
+    }
+
+
+    @Test
+    public void globalStatsLimitTest() {
+        for (int timestamp=1000;timestamp<=2000;timestamp+=10){
+            GlobalMeasurement globalMeasurement=new GlobalMeasurement(22.5,timestamp);
+            target("/measurements/global").request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(globalMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        }
+        Response response = target("admin/global/7").request(MediaType.APPLICATION_JSON_TYPE).get();
+        GlobalMeasurement[] list=response.readEntity(GlobalMeasurement[].class);
+        assertEquals("list must have the same length of the limit ",7,list.length);
+        assertTrue("result must be sorted from newer to older",ServerTest.checkIfIsSorted(list));
+        GlobalMeasurement globalMeasurement=list[0];
+        assertEquals("last must be last ",2000,globalMeasurement.getTimestamp());
+
+    }
+
+    @Test
+    public void wrongStatsTest() {
+        final int thisHouseId = 7;
+        GlobalMeasurement globalMeasurement = new GlobalMeasurement(22.5, 1234);
+        Response response = target("/measurements/local").request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(globalMeasurement, MediaType.APPLICATION_JSON_TYPE));
+        assertNotEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+
+    public static boolean checkIfIsSorted(GlobalMeasurement[] array){
+        for (int i = 0; i < array.length - 1; i++) {
+            if (array[i].getTimestamp() < array[i + 1].getTimestamp())
+                return false;
+        }
+        return true;
+    }
+
+
+
+
+
+
 
 
 

@@ -34,6 +34,7 @@ public class LocalMeasurementList {
     }
 
     public synchronized boolean add(LocalMeasurement stat){
+        System.out.println("add local "+stat.toString());
         int id=stat.getId();
         List<LocalMeasurement> measurements=stats.getOrDefault(id,new ArrayList<>());
         measurements.add(stat);

@@ -5,10 +5,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LocalMeasurement extends GlobalMeasurement {
 
-    private int id;
+    private Integer id;
 
     public LocalMeasurement(){
         super();
+        id=null;
     }
 
 

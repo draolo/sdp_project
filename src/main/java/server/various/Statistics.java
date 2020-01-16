@@ -6,6 +6,9 @@ import java.util.List;
 public class Statistics {
     public static double getMean(List<? extends GlobalMeasurement> data) {
         double sum = 0.0;
+        if(data.size()<=0){
+            return sum;
+        }
         for(GlobalMeasurement measurement : data){
             sum += measurement.getValue();
         }
