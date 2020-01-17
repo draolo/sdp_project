@@ -23,7 +23,7 @@ public class AdminService {
     @GET
     @Produces({"application/json"})
     public Response getList() {
-        return Response.ok(HouseList.getInstance()).build();
+        return Response.ok(HouseList.getInstance().getHouseList()).build();
     }
 
     @Path("local/{id}/{limit}")
