@@ -94,12 +94,13 @@ public class Main {
     }
 
     public static void printMenu(){
+        System.out.println();
         System.out.println("WHAT WOULD YOU LIKE TO DO:");
         System.out.println("1 VIEW HOUSE LIST");
         System.out.println("2 VIEW LAST HOUSE MEASUREMENTS");
         System.out.println("3 VIEW LAST GLOBAL MEASUREMENTS");
         System.out.println("4 VIEW LAST HOUSE MEASUREMENTS STATISTICS");
-        System.out.println("5 VIEW LAST GLOB1AL MEASUREMENTS STATISTICS");
+        System.out.println("5 VIEW LAST GLOBAL MEASUREMENTS STATISTICS");
         System.out.println("0 EXIT");
     }
 

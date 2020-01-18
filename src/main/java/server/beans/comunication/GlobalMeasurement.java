@@ -38,8 +38,8 @@ public class GlobalMeasurement implements Comparable<GlobalMeasurement>{
     @Override
     public String toString() {
         return "GlobalStat{" +
-                ", value=" + value +
-                ", timestamp='" + timestamp + '\'' +
+                "value=" + value +
+                ", timestamp=" + timestamp +
                 '}';
     }
 

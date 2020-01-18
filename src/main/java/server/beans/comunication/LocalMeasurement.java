@@ -31,7 +31,7 @@ public class LocalMeasurement extends GlobalMeasurement {
         return "LocalStat{" +
                 "id=" + id +
                 ", value=" + this.getValue() +
-                ", timestamp='" + this.getTimestamp() + '\'' +
+                ", timestamp=" + this.getTimestamp() +
                 '}';
     }
 }

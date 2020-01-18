@@ -15,6 +15,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class GlobalStatsTestInIsolation1 extends JerseyTest {
+
     @Override
     protected Application configure() {
         final ResourceConfig rc = new ResourceConfig();

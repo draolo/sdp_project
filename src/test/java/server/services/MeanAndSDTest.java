@@ -17,6 +17,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class MeanAndSDTest extends JerseyTest {
+
     @Override
     protected Application configure() {
         final ResourceConfig rc = new ResourceConfig();
