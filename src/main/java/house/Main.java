@@ -7,6 +7,7 @@ import house.Message.MessageReceiver;
 import house.Message.MessageSender;
 import house.Message.MessageType;
 import house.houseListManager.HouseList;
+import house.measurement.MeasurementManager;
 import house.smartMeter.SmartMeterSimulator;
 import server.beans.comunication.HouseInfo;
 
@@ -79,6 +80,7 @@ public class Main {
         Configuration.toServer = ClientBuilder.newClient();
         HouseList.getInstance().addObserver(BoostManager.getInstance());
         HouseList.getInstance().addObserver(Coordinator.getInstance());
+        HouseList.getInstance().addObserver(MeasurementManager.getInstance());
         MessageReceiver messageReceiver = new MessageReceiver(socket);
         Configuration.messageReceiver = messageReceiver;
         Configuration.isStopping = false;

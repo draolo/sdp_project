@@ -1,10 +1,9 @@
 package house.measurement;
 
+import house.CommunicationWithServer;
 import house.Coordinator.Coordinator;
 import house.Coordinator.CoordinatorStatus;
-import house.CommunicationWithServer;
 import house.houseListManager.EnterLeaveObserver;
-import house.houseListManager.HouseList;
 import server.beans.comunication.GlobalMeasurement;
 import server.beans.comunication.HouseInfo;
 import server.beans.comunication.LocalMeasurement;
@@ -34,7 +33,6 @@ public class MeasurementManager implements EnterLeaveObserver {
         Logger.getGlobal().finer("MEASUREMENT MANAGER INIT");
         measurements = new HashMap<>();
         fresh=new HashMap<>();
-        HouseList.getInstance().addObserver(this);
     }
 
     public synchronized void addHouse(HouseInfo h){
