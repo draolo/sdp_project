@@ -75,6 +75,7 @@ public class Coordinator implements EnterLeaveObserver {
             HouseInfo mySelf = Configuration.houseInfo;
             if (houseInfo.getId() == mySelf.getId()) {
                 setStatus(CoordinatorStatus.COORDINATOR);
+                System.out.println("I AM THE COORDINATOR");
             }
             Logger.getGlobal().info(this.toString());
         }else {
