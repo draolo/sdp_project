@@ -7,6 +7,8 @@ import house.smartMeter.Buffer;
 import house.smartMeter.Measurement;
 import server.beans.comunication.LocalMeasurement;
 
+import java.util.logging.Logger;
+
 public class SlidingBuffer implements Buffer {
     private final static int size=24;
     int writeIn;
@@ -28,7 +30,7 @@ public class SlidingBuffer implements Buffer {
             if(writeIn>=size){
                 writeIn=0;
             }
-            //System.err.println("generated new local measurement");
+            Logger.getGlobal().finest("generated new local measurement");
             LocalMeasurement localMeasurement=calculateLocalMeasurement();
             sendMeasurement(localMeasurement);
             measurementNumber=size/2;

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class HouseList {
     private List<HouseInfo> houseList;
@@ -13,7 +14,7 @@ public class HouseList {
     private Set<EnterLeaveObserver> observers;
 
     private HouseList() {
-        //System.err.println("INIT HOUSE LIST");
+        Logger.getGlobal().finer("INIT HOUSE LIST");
         houseList = new ArrayList<>();
         observers = new HashSet<>();
     }
@@ -30,7 +31,7 @@ public class HouseList {
     }
 
     public synchronized boolean add(HouseInfo newHouse){
-        //System.err.println("ADDING HOUSE "+newHouse);
+        Logger.getGlobal().fine("ADDING HOUSE "+newHouse);
         for(HouseInfo h: houseList) {
             if (h.getId()==newHouse.getId()) {
                 return false;
@@ -42,13 +43,13 @@ public class HouseList {
     }
 
     public synchronized boolean del(HouseInfo house) {
-        System.err.println("REMOVING HOUSE "+ house.getId());
+        Logger.getGlobal().info("REMOVING HOUSE "+ house.getId());
         boolean ret=houseList.removeIf(h->h.getId()==house.getId()&&h.getPort()==house.getPort()&&h.getIp().equals(house.getIp()));
         if (ret){
-            System.err.println("REMOVED HOUSE "+house.getId());
+            Logger.getGlobal().info("REMOVED HOUSE "+house.getId());
             notifyLeave(house);
         }
-        System.err.println("notify complete");
+        Logger.getGlobal().info("notify complete");
         return ret;
     }
 

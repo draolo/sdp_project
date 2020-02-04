@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class MessageDispatcher extends Thread {
     Socket connection;
@@ -41,11 +42,11 @@ public class MessageDispatcher extends Thread {
         try {
             message=gson.fromJson(inFromClient,Message.class);
         }catch (Exception e){
-            System.err.println("SEVERE: UNABLE TO FETCH MESSAGE");
+            Logger.getGlobal().severe("SEVERE: UNABLE TO FETCH MESSAGE");
             e.printStackTrace();
             return;
         }
-        //System.err.println("RECEIVED MESSAGE "+message);
+        Logger.getGlobal().fine("RECEIVED MESSAGE "+message);
         long delta=message.timestamp- TimeManager.getTime();
         if(delta>0){
             //probably never used in the demonstration because all the process are on the same machine and so have the same time
@@ -54,38 +55,35 @@ public class MessageDispatcher extends Thread {
         }
         try {
             dispatchMessage(message);
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
-        } catch (Exception e){
-            System.err.println("SEVERE: UNABLE TO PROCESS MESSAGE");
-            System.err.println(message);
+        }catch (Exception e){
+            Logger.getGlobal().severe("SEVERE: UNABLE TO PROCESS MESSAGE");
+            Logger.getGlobal().severe(message.toString());
             e.printStackTrace();
         }finally {
             try {
                 connection.close();
             } catch (IOException e) {
-                System.err.println("AN ERROR OCCUR WHILE CLOSING THE SOCKET");
+                Logger.getGlobal().warning("AN ERROR OCCUR WHILE CLOSING THE SOCKET");
                 e.printStackTrace();
             }
         }
 
     }
 
-    private void dispatchMessage(Message message) throws InterruptedException {
+    private void dispatchMessage(Message message){
         switch (message.type){
             case WELCOME:{
-                //System.err.println("REQUEST TYPE WELCOME");
+                Logger.getGlobal().fine("REQUEST TYPE WELCOME");
                 HouseInfo houseInfo = gson.fromJson(message.content.toString(),HouseInfo.class);
                 HouseList.getInstance().add(houseInfo);
-                //System.err.println(HouseList.getInstance());
+                Logger.getGlobal().fine(HouseList.getInstance().toString());
                 return;
             }
             case GOODBYE:{
-                //System.err.println("REQUEST TYPE GOODBYE");
+                Logger.getGlobal().fine("REQUEST TYPE GOODBYE");
                 HouseInfo houseInfo = gson.fromJson(message.content.toString(),HouseInfo.class);
                 HouseList.getInstance().del(houseInfo);
-                //System.err.println(HouseList.getInstance());
+                Logger.getGlobal().fine(HouseList.getInstance().toString());
                 return;
             }
             case MEASUREMENT:{
@@ -119,13 +117,13 @@ public class MessageDispatcher extends Thread {
                 return;
             }
             case DEAD:{
-                //System.err.println("REQUEST TYPE DEAD");
+                Logger.getGlobal().fine("REQUEST TYPE DEAD");
                 HouseInfo houseInfo = gson.fromJson(message.content.toString(),HouseInfo.class);
                 HouseList.getInstance().del(houseInfo);
                 if (houseInfo.getId()==Configuration.houseInfo.getId() && !Configuration.isStopping){
                     Main.recovery();
                 }
-                //System.err.println(HouseList.getInstance());
+                Logger.getGlobal().fine(HouseList.getInstance().toString());
                 return;
             }
             case ELECTION:{

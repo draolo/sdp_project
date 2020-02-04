@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class BoostManager implements EnterLeaveObserver {
@@ -22,7 +23,7 @@ public class BoostManager implements EnterLeaveObserver {
     private HashMap<Integer,Boolean> ack;
 
     private BoostManager() {
-        //System.err.println("INITIALIZING BOOT MANAGER");
+        Logger.getGlobal().finer("INITIALIZING BOOT MANAGER");
         actual=null;
         status= BoostStatus.NOT_IN_USE;
     }
@@ -37,7 +38,7 @@ public class BoostManager implements EnterLeaveObserver {
     public boolean request() {
         synchronized (HouseList.getInstance()) { //avoid deadlock
             synchronized (this) {
-                System.err.println("BEGINNING BOOST REQUEST");
+                Logger.getGlobal().info("BEGINNING BOOST REQUEST");
                 if (status == BoostStatus.AWAIT) {
                     System.out.println("BOOST ALREADY REQUESTED");
                     return false;
@@ -52,16 +53,16 @@ public class BoostManager implements EnterLeaveObserver {
                     Message message = new Message(MessageType.BOOST_REQUEST, boostRequest);
                     //Thread.sleep(15000);
                     MessageSender.sendToEveryBody(message);
-                    System.err.println("REQUEST STARTED AWAITING FOR ACK");
+                    Logger.getGlobal().info("REQUEST STARTED AWAITING FOR ACK");
                     return true;
                 }
             }
         }
     }
 
-    //METHOD BOOST THROW InterruptedException do to smartmeter.boost
-    public synchronized void getAck(BoostAck ack) throws InterruptedException {
-        System.err.println("RECEIVED ACK FROM: "+ack.ackBy.getId());
+
+    public synchronized void getAck(BoostAck ack){
+        Logger.getGlobal().info("RECEIVED ACK FROM: "+ack.ackBy.getId());
         if (status!=BoostStatus.AWAIT || actual.timestamp!=ack.boostRequest.timestamp){
             return;
         }
@@ -71,78 +72,86 @@ public class BoostManager implements EnterLeaveObserver {
         Predicate<Boolean> isTrue = h -> h;
         List<Boolean> result = acks.stream().filter(isTrue)
                 .collect(Collectors.toList());
-        System.err.println("RECEIVED "+result.size()+" ACK OUT OF "+acks.size());
+        Logger.getGlobal().info("RECEIVED "+result.size()+" ACK OUT OF "+acks.size());
         if(result.size()>=acks.size()-1){
-            System.err.println("BOOST START");
+            System.out.println("BOOST START");
             boost();
-            System.err.println("BOOST END");
+            System.out.println("BOOST END");
         }
     }
 
-    private synchronized void boost() throws InterruptedException {
+    private synchronized void boost(){
         setStatus(BoostStatus.BOOSTING);
         CommunicationWithServer.sendBoostNotification(actual);
-        Configuration.smartMeterSimulator.boost();
+        try {
+            Configuration.smartMeterSimulator.boost();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setStatus(BoostStatus.NOT_IN_USE);
     }
 
-    //InterruptedException do to wait()
-    public synchronized boolean ack(BoostRequest b) throws InterruptedException {
-        System.err.println("RECEIVED BOOST REQUEST "+b);
+
+    public synchronized boolean ack(BoostRequest b){
+        Logger.getGlobal().info("RECEIVED BOOST REQUEST "+b);
         while (true){
-            System.err.println("REQUEST "+b+" IS BEING ANALYZED");
+            Logger.getGlobal().info("REQUEST "+b+" IS BEING ANALYZED");
             if (b.from.getId()==Configuration.houseInfo.getId()){
-                System.err.println("REQUEST "+b+"  ACCEPTED BECAUSE COMES FROM ME");
+                Logger.getGlobal().info("REQUEST "+b+"  ACCEPTED BECAUSE COMES FROM ME");
                 //accept the request because come from myself
                 return true;
             }
             switch (status){
                 case AWAIT:{
                     if (ack.getOrDefault(b.from.getId(),false)){
-                        System.err.println("REQUEST "+b+" NOT ACCEPTED BECAUSE HE ALREADY ACK ME");
+                        Logger.getGlobal().info("REQUEST "+b+" NOT ACCEPTED BECAUSE HE ALREADY ACK ME");
                         //don't ack if he have already ack me
                         break;
                     }
                     if (!ack.containsKey(b.from.getId())){
-                        System.err.println("REQUEST "+b+" NOT ACCEPTED BECAUSE HE WASN'T IN THE NETWORK");
+                        Logger.getGlobal().info("REQUEST "+b+" NOT ACCEPTED BECAUSE HE WASN'T IN THE NETWORK");
                         //older member use the force: if have send my request before that he enter into the network
                         // I will not ack him because he never got my request and so will never ack me back
                         break;
                     }
                     if(b.timestamp<actual.timestamp){
-                        System.err.println("REQUEST "+b+" ACCEPTED BECAUSE OLDER THAN MINE "+actual);
+                        Logger.getGlobal().info("REQUEST "+b+" ACCEPTED BECAUSE OLDER THAN MINE "+actual);
                         return true;
                     }if(b.timestamp==actual.timestamp){
                         if(b.from.getId()<actual.from.getId()){
-                            System.err.println("REQUEST "+b+" ACCEPTED BECAUSE IT HAS BETTER ID AND SAME TIMESTAMP "+actual);
+                            Logger.getGlobal().info("REQUEST "+b+" ACCEPTED BECAUSE IT HAS BETTER ID AND SAME TIMESTAMP "+actual);
                             return true;
                         }
                     }
                     break;
                 }
                 case NOT_IN_USE:{
-                    System.err.println("REQUEST "+b+" ACCEPTED BECAUSE RESOURCE IS NOT IN USE");
+                    Logger.getGlobal().info("REQUEST "+b+" ACCEPTED BECAUSE RESOURCE IS NOT IN USE");
                     return true;
                 }
                 default:{
-                    System.err.println("REQUEST "+b+" NOT ACCEPTED BECAUSE WE ARE USING BOOST OR UNKNOWN REASON");
-                    System.err.println(this);
+                    Logger.getGlobal().info("REQUEST "+b+" NOT ACCEPTED BECAUSE WE ARE USING BOOST OR UNKNOWN REASON");
+                    Logger.getGlobal().info(this.toString());
                     break;
                 }
             }
-            System.err.println("REQUEST "+b+" IS NOW WAITING");
-            wait();
-            System.err.println("REQUEST "+b+" IS NOT WAITING");
+            Logger.getGlobal().info("REQUEST "+b+" IS NOW WAITING");
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Logger.getGlobal().info("REQUEST "+b+" IS NOT WAITING");
         }
     }
 
     public synchronized void setStatus(BoostStatus s){
-        System.err.println("STATUS CHANGED TO "+s);
+        Logger.getGlobal().info("STATUS CHANGED TO "+s);
         this.status=s;
         if(s==BoostStatus.NOT_IN_USE){
             notifyAll();
         }
-        //System.err.println(this);
+        Logger.getGlobal().fine(this.toString());
     }
 
     @Override
@@ -163,12 +172,7 @@ public class BoostManager implements EnterLeaveObserver {
     public synchronized void onLeave(HouseInfo h) {
         if (status==BoostStatus.AWAIT){
             BoostAck mockACK= new BoostAck(h, actual);
-            try {
-                getAck(mockACK);
-            } catch (InterruptedException e) {
-                System.err.println("FAILED TO VALIDATE SELF MADE ACK");
-                e.printStackTrace();
-            }
+            getAck(mockACK);
         }
     }
 }

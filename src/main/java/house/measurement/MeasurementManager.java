@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MeasurementManager implements EnterLeaveObserver {
@@ -30,7 +31,7 @@ public class MeasurementManager implements EnterLeaveObserver {
     }
 
     private MeasurementManager(){
-        //System.err.println("MEASUREMENT MANAGER INIT");
+        Logger.getGlobal().finer("MEASUREMENT MANAGER INIT");
         measurements = new HashMap<>();
         fresh=new HashMap<>();
         HouseList.getInstance().addObserver(this);
@@ -38,32 +39,33 @@ public class MeasurementManager implements EnterLeaveObserver {
 
     public synchronized void addHouse(HouseInfo h){
         //new house count as fresh measurement otherwise we could wait forever until a new measurement is send
-        //System.err.println("ADDING NEW HOUSE "+h);
+        Logger.getGlobal().finer("ADDING NEW HOUSE "+h);
         measurements.put(h.getId(),new LocalMeasurement(h.getId(),0.,0));
         fresh.put(h.getId(),true);
-        //System.err.println(this);
+        Logger.getGlobal().finer(this.toString());
     }
 
     public synchronized void removeHouse(int id){
-        //System.err.println("REMOVING HOUSE "+id);
+        Logger.getGlobal().finer("REMOVING HOUSE "+id);
         measurements.remove(id);
         fresh.remove(id);
+        Logger.getGlobal().finer(this.toString());
     }
 
     public synchronized void addStat(LocalMeasurement localMeasurement){
-        //System.err.println("ADDING NEW MEASUREMENT "+localMeasurement);
+        Logger.getGlobal().finer("ADDING NEW MEASUREMENT "+localMeasurement);
         LocalMeasurement old= measurements.getOrDefault(localMeasurement.getId(),new LocalMeasurement(localMeasurement.getId(),0.,0));
         if(old.getTimestamp()<localMeasurement.getTimestamp()){
             measurements.put(localMeasurement.getId(), localMeasurement);
             fresh.put(localMeasurement.getId(), true);
-            //System.err.println(this);
+            Logger.getGlobal().finer(this.toString());
             if (Coordinator.getInstance().getStatus() == CoordinatorStatus.COORDINATOR && areAllFresh()) {
-                //System.err.println("ALL MEASUREMENT ARE FRESH "+localMeasurement);
+                Logger.getGlobal().fine("ALL MEASUREMENT ARE FRESH "+localMeasurement);
                 GlobalMeasurement globalMeasurement = this.globalValue();
                 CommunicationWithServer.sendGlobalMeasurement(globalMeasurement);
                 fresh.replaceAll((k, v) -> false);
-                //System.err.println("RESET MEASUREMENT");
-                //System.err.println(this);
+                Logger.getGlobal().fine("RESET MEASUREMENT");
+                Logger.getGlobal().fine(this.toString());
             }
         }
     }

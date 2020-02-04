@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MessageSender {
     public static void sendTo(Message message, HouseInfo to){
@@ -22,17 +23,17 @@ public class MessageSender {
             outToClient.writeBytes(jsonObj + '\n');
             clientSocket.close();
         }catch (UnknownHostException h){
-            System.err.println("UNABLE TO FETCH "+to+" ADDRESS, REMOVED FROM LOCAL HOUSE LIST");
+            Logger.getGlobal().warning("UNABLE TO FETCH "+to+" ADDRESS, REMOVED FROM LOCAL HOUSE LIST");
             HouseList.getInstance().del(to);
         }catch (ConnectException ce){
-            System.err.println("UNABLE TO CONNECT TO "+to+" PROCESS IS PROBABLY DEAD");
+            Logger.getGlobal().warning("UNABLE TO CONNECT TO "+to+" PROCESS IS PROBABLY DEAD");
             HouseList.getInstance().del(to);
             Message someoneIsDead=new Message(MessageType.DEAD,to);
             MessageSender.sendToEveryBody(someoneIsDead);
             CommunicationWithServer.unregister(to.getId());
             ce.printStackTrace();
         }catch (Exception e){
-            System.err.println("UNKNOWN ERROR OCCUR WHILE TRYING TO SEND MESSAGE "+message+" TO "+to);
+            Logger.getGlobal().severe("UNKNOWN ERROR OCCUR WHILE TRYING TO SEND MESSAGE "+message+" TO "+to);
             e.printStackTrace();
         }
     }

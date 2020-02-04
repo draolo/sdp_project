@@ -5,6 +5,7 @@ import house.Configuration;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class MessageReceiver extends Thread{
     ServerSocket socket;
@@ -20,7 +21,7 @@ public class MessageReceiver extends Thread{
         try {
             socket.close();
         } catch (IOException e) {
-            System.err.println("FAILED TO CLOSE THE SOCKET");
+            Logger.getGlobal().warning("FAILED TO CLOSE THE SOCKET");
             e.printStackTrace();
         }
     }

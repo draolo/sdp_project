@@ -9,6 +9,7 @@ import server.beans.comunication.HouseInfo;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ElectionManager {
@@ -16,7 +17,7 @@ public class ElectionManager {
     private ElectionStatus status;
 
     private ElectionManager() {
-        //System.err.println("INITIALIZING ELECTION MANAGER");
+        Logger.getGlobal().finer("INITIALIZING ELECTION MANAGER");
         status= ElectionStatus.ELECTION_END;
     }
 
@@ -27,7 +28,7 @@ public class ElectionManager {
         return instance;
     }
 
-    public synchronized void beginElection() throws InterruptedException {
+    public synchronized void beginElection(){
         if(status!=ElectionStatus.ELECTION_END){
             return;
         }
@@ -43,7 +44,11 @@ public class ElectionManager {
             }
             Message message = new Message(MessageType.ELECTION, Configuration.houseInfo);
             MessageSender.sendToGroup(message, result);
-            wait(30 * 1000);
+            try {
+                wait(30 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (status == ElectionStatus.LEADER) {
                 winner();
                 return;
@@ -72,7 +77,7 @@ public class ElectionManager {
         }
     }
 
-    public synchronized void receiveElectionRequest(HouseInfo from) throws InterruptedException {
+    public synchronized void receiveElectionRequest(HouseInfo from){
         switch (status){
             case LEADER:{
                 if (Configuration.houseInfo.getId()>from.getId()){

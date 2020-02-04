@@ -9,6 +9,8 @@ import house.Message.MessageType;
 import house.houseListManager.EnterLeaveObserver;
 import server.beans.comunication.HouseInfo;
 
+import java.util.logging.Logger;
+
 
 public class Coordinator implements EnterLeaveObserver {
     private HouseInfo coordinator;
@@ -17,7 +19,7 @@ public class Coordinator implements EnterLeaveObserver {
     private static Coordinator instance;
 
     private Coordinator() {
-        //System.err.println("COORDINATOR INIT");
+        Logger.getGlobal().finer("COORDINATOR INIT");
         coordinator=null;
         status= CoordinatorStatus.NOT_SET;
         lastEdit=0;
@@ -45,15 +47,18 @@ public class Coordinator implements EnterLeaveObserver {
         }
     }
 
-    //InterruptedException due to wait()
-    public synchronized HouseInfo getCoordinator() throws InterruptedException {
-        System.err.println("COORDINATOR REQUEST");
+    public synchronized HouseInfo getCoordinator() {
+        Logger.getGlobal().info("COORDINATOR REQUEST");
         while (true){
-            System.err.println("COORDINATOR REQUEST IS BEING ANALYZED");
-            System.err.println(this);
+            Logger.getGlobal().info("COORDINATOR REQUEST IS BEING ANALYZED");
+            Logger.getGlobal().info(this.toString());
             if (!isCoordinatorSet()){
-                System.err.println("UNKNOWN COORDINATOR REQUEST PAUSED");
-                wait();
+                Logger.getGlobal().info("UNKNOWN COORDINATOR REQUEST PAUSED");
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }else {
                 return coordinator;
             }
@@ -63,7 +68,7 @@ public class Coordinator implements EnterLeaveObserver {
 
     public synchronized void setCoordinator(HouseInfo houseInfo, long timestamp) {
         if(timestamp>=lastEdit) {
-            System.err.println("COORDINATOR SET TO " + houseInfo);
+            Logger.getGlobal().info("COORDINATOR SET TO " + houseInfo);
             coordinator = houseInfo;
             setStatus(CoordinatorStatus.SET);
             ElectionManager.getInstance().setStatus(ElectionStatus.ELECTION_END);
@@ -71,9 +76,9 @@ public class Coordinator implements EnterLeaveObserver {
             if (houseInfo.getId() == mySelf.getId()) {
                 setStatus(CoordinatorStatus.COORDINATOR);
             }
-            System.err.println(this);
+            Logger.getGlobal().info(this.toString());
         }else {
-            System.err.println("COORDINATOR NOT SET BECAUSE REQUEST IS OLDER THAN THE LAST ONE");
+            Logger.getGlobal().info("COORDINATOR NOT SET BECAUSE REQUEST IS OLDER THAN THE LAST ONE");
 
         }
     }
@@ -83,12 +88,12 @@ public class Coordinator implements EnterLeaveObserver {
     }
 
     public synchronized void setStatus(CoordinatorStatus s){
-        System.err.println("STATUS SET TO "+s);
+        Logger.getGlobal().info("STATUS SET TO "+s);
         this.status=s;
         if(isCoordinatorSet()){
             notifyAll();
         }
-        System.err.println(this);
+        Logger.getGlobal().info(this.toString());
     }
 
     private boolean isCoordinatorSet(){
@@ -97,13 +102,7 @@ public class Coordinator implements EnterLeaveObserver {
 
     public synchronized void startElection() {
         setStatus(CoordinatorStatus.IN_ELECTION); //election starts in a new thread to avoid deadlock, and to avoid HouseList.remove to be very time consuming
-        Thread t=new Thread(()-> {
-            try {
-                ElectionManager.getInstance().beginElection();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        Thread t=new Thread(()-> ElectionManager.getInstance().beginElection());
         t.start();
     }
 

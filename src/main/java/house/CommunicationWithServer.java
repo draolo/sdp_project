@@ -8,6 +8,7 @@ import server.beans.comunication.LocalMeasurement;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.logging.Logger;
 
 public class CommunicationWithServer {
 
@@ -25,7 +26,7 @@ public class CommunicationWithServer {
             Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/measurements/global").request(MediaType.APPLICATION_JSON).post(Entity.entity(globalMeasurement, MediaType.APPLICATION_JSON));
             return response.getStatus() == Response.Status.OK.getStatusCode();
         }catch (Exception e){
-            System.err.println("UNABLE TO COMMUNICATE WITH SERVER");
+            Logger.getGlobal().warning("UNABLE TO COMMUNICATE WITH SERVER");
             e.printStackTrace();
             return false;
         }
@@ -36,7 +37,7 @@ public class CommunicationWithServer {
             Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/measurements/local").request(MediaType.APPLICATION_JSON).post(Entity.entity(localMeasurement, MediaType.APPLICATION_JSON));
             return response.getStatus() == Response.Status.OK.getStatusCode();
         }catch (Exception e){
-            System.err.println("UNABLE TO COMMUNICATE WITH SERVER");
+            Logger.getGlobal().warning("UNABLE TO COMMUNICATE WITH SERVER");
             e.printStackTrace();
             return false;
         }
@@ -47,7 +48,7 @@ public class CommunicationWithServer {
             Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/measurements/boost").request(MediaType.APPLICATION_JSON).post(Entity.entity(boostRequest.getFrom(), MediaType.APPLICATION_JSON));
             return response.getStatus() == Response.Status.OK.getStatusCode();
         }catch (Exception e){
-            System.err.println("UNABLE TO COMMUNICATE WITH SERVER");
+            Logger.getGlobal().warning("UNABLE TO COMMUNICATE WITH SERVER");
             e.printStackTrace();
             return false;
         }
@@ -60,10 +61,9 @@ public class CommunicationWithServer {
     public static boolean unregister(int id) {
         try {
             Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/house-manager/del/" + id).request().delete();
-            //System.err.println("UNABLE TO LEAVE THE SERVER");
             return response.getStatus() == Response.Status.OK.getStatusCode();
         }catch (Exception e){
-            System.err.println("UNABLE TO COMMUNICATE WITH SERVER");
+            Logger.getGlobal().warning("UNABLE TO COMMUNICATE WITH SERVER");
             e.printStackTrace();
             return false;
         }

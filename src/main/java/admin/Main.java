@@ -10,6 +10,7 @@ import javax.ws.rs.ProcessingException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -95,7 +96,7 @@ public class Main {
                     }
                     case 0: {
                         if (!admin.unsubscribe()){
-                            System.err.println("FAILED TO UNSUBSCRIBE TO NOTIFICATION SERVICE");
+                            Logger.getGlobal().warning("FAILED TO UNSUBSCRIBE TO NOTIFICATION SERVICE");
                         }
                         receiver.stopMeGently();
                         return;

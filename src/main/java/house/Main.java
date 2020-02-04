@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 //see if args contains setup data
@@ -29,11 +31,12 @@ public class Main {
     public static void main(String[] args)  {
         Thread.currentThread().setName("Main-application");
         Scanner fromUser;
+        Logger.getGlobal().setLevel(Level.WARNING);
         try {
             fromUser = new Scanner(System.in);
             initialSetup(args);
         }catch (Exception e){
-            System.err.println("UNABLE TO PERFORM INITIAL SETUP CHECK THAT ALL THE PARAMETERS ARE CORRECT");
+            System.out.println("UNABLE TO PERFORM INITIAL SETUP CHECK THAT ALL THE PARAMETERS ARE CORRECT");
             System.out.println("USAGE Main id localPort serverIP serverPort");
             e.printStackTrace();
             return;

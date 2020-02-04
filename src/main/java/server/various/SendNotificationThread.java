@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class SendNotificationThread extends Thread {
     Notification notification;
@@ -29,7 +30,7 @@ public class SendNotificationThread extends Thread {
             outToClient.writeBytes(jsonObj + '\n');
             clientSocket.close();
         }catch (ConnectException ce){
-            System.err.println("UNABLE TO CONNECT TO "+to+" PROCESS IS PROBABLY DEAD");
+            Logger.getGlobal().warning("UNABLE TO CONNECT TO "+to+" PROCESS IS PROBABLY DEAD");
             NotificationSubscriberList.getInstance().unsubscribe(to);
             ce.printStackTrace();
         }catch (IOException e) {
