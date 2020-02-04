@@ -47,12 +47,11 @@ public class MessageDispatcher extends Thread {
             return;
         }
         Logger.getGlobal().fine("RECEIVED MESSAGE "+message);
-        long delta=message.timestamp- TimeManager.getTime();
-        if(delta>0){
-            //probably never used in the demonstration because all the process are on the same machine and so have the same time
-            // but very useful to enforce partial ordination in a real life scenario
-            TimeManager.addDelta(delta+1);
-        }
+
+        //probably never used in the demonstration because all the process are on the same machine and so have the same time
+        // but very useful to enforce partial ordination in a real life scenario
+        TimeManager.testAndSet(message.timestamp);
+
         try {
             dispatchMessage(message);
         }catch (Exception e){
