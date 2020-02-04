@@ -7,6 +7,7 @@ import server.various.SendNotification;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 
 @Path("house-manager")
@@ -33,13 +34,25 @@ public class HouseManager {
     }
 
 
-    @Path("del/{id}")
+    @Path("house/{id}")
     @DELETE
     public Response delHouse(@PathParam("id") int id){
         if(HouseList.getInstance().del(id)){
             Notification n=new Notification("HOUSE "+id+" HAS LEFT THE NETWORK");
             new SendNotification(n).start();
             return Response.ok().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @Path("house/{id}")
+    @GET
+    @Consumes({"application/json"})
+    public Response getHouse(@PathParam("id") int id){
+        List<HouseInfo> list=HouseList.getInstance().getHouseList();
+        list.removeIf(houseInfo -> houseInfo.getId()!=id);
+        if(list.size()>0){
+            return Response.ok(list.get(0)).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
     }

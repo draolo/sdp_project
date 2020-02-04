@@ -61,7 +61,7 @@ public class ServerTest extends JerseyTest {
                 .post(Entity.entity(houseInfo, MediaType.APPLICATION_JSON_TYPE));
         assertEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
 
-        response = target("/house-manager/del/3").request().delete();
+        response = target("/house-manager/house/3").request().delete();
         assertEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
 
         response = target("/house-manager/add").request(MediaType.APPLICATION_JSON_TYPE)
@@ -114,7 +114,7 @@ public class ServerTest extends JerseyTest {
                 .collect(Collectors.toList());
         HouseInfo house2=result.get(0);
         assertEquals("result should contain the new house: ",house2.getIp(),houseInfo.getIp());
-        target("/house-manager/del/6").request().delete();
+        target("/house-manager/house/6").request().delete();
         response = target("/house-manager").request().get();
         HouseInfo[] listAfter=response.readEntity(HouseInfo[].class);
         l= Arrays.asList(listAfter);

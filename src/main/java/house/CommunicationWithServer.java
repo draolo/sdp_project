@@ -60,7 +60,7 @@ public class CommunicationWithServer {
 
     public static boolean unregister(int id) {
         try {
-            Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/house-manager/del/" + id).request().delete();
+            Response response = Configuration.toServer.target(Configuration.serverBaseURL + "/house-manager/house/" + id).request().delete();
             return response.getStatus() == Response.Status.OK.getStatusCode();
         }catch (Exception e){
             Logger.getGlobal().warning("UNABLE TO COMMUNICATE WITH SERVER");
