@@ -98,7 +98,7 @@ public class Main {
                         if (!admin.unsubscribe()){
                             Logger.getGlobal().warning("FAILED TO UNSUBSCRIBE TO NOTIFICATION SERVICE");
                         }
-                        receiver.stopMeGently();
+                        receiver.stopMeNotSoGently();
                         return;
                     }
                     default: {
