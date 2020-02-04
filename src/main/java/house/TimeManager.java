@@ -21,4 +21,15 @@ public class TimeManager {
             addDelta(difference+1);
         }
     }
+
+    //custom sleep with already try and catch used for debug
+    public static void sleep(int seconds){
+        Logger.getGlobal().warning("SYSTEM IN PAUSE");
+        try {
+            Thread.sleep(seconds*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Logger.getGlobal().warning("SYSTEM RESUME");
+    }
 }
