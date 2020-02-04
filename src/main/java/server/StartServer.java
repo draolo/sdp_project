@@ -13,10 +13,20 @@ import java.util.Map;
 
 public class StartServer {
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 1340;
+
 
     public static void main(String[] args) throws IOException, URISyntaxException {
+        String HOST;
+        int PORT;
+        try {
+           HOST=args[0];
+           PORT=Integer.parseInt(args[1]);
+       }catch (Exception e){
+            System.out.println("INVALID PARAMETER");
+            System.out.println("USAGE: StartServer host port");
+            e.printStackTrace();
+            return;
+        }
         String BASE_URI ="http://"+HOST+":"+PORT+"/";
         URI uri=new URI(BASE_URI);
         //final ResourceConfig rc = new ResourceConfig(HelloWorld.class, HouseManager.class, MeasurementsManager.class);

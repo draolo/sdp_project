@@ -1,23 +1,38 @@
 package admin;
 
-import server.beans.comunication.GlobalMeasurement;
-import server.beans.comunication.HouseInfo;
-import server.beans.comunication.LocalMeasurement;
-import server.beans.comunication.Stats;
+import server.beans.comunication.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 
 
 public class Admin {
     Client connection;
     String serverBaseUrl;
+    ServerSocket socket;
 
-    public Admin(String serverIP, int serverPort){
+    public Admin(String serverIP, int serverPort, ServerSocket socket){
         this.serverBaseUrl="http://"+serverIP+":"+serverPort;
         connection= ClientBuilder.newClient();
+        this.socket=socket;
+    }
+
+    public boolean subscribe() throws UnknownHostException {
+        NotificationListener me = new NotificationListener(socket.getLocalPort(),InetAddress.getLocalHost().getHostAddress());
+        Response response= connection.target(serverBaseUrl+"/notification/subscribe").request().post(Entity.entity(me, MediaType.APPLICATION_JSON));
+        return response.getStatus()== Response.Status.OK.getStatusCode();
+    }
+
+    public boolean unsubscribe() throws UnknownHostException {
+        NotificationListener me = new NotificationListener(socket.getLocalPort(),InetAddress.getLocalHost().getHostAddress());
+        Response response= connection.target(serverBaseUrl+"/notification/unsubscribe").request().post(Entity.entity(me, MediaType.APPLICATION_JSON));
+        return response.getStatus()== Response.Status.OK.getStatusCode();
     }
 
     HouseInfo[] getHouseList(){

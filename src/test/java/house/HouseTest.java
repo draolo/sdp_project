@@ -1,27 +1,8 @@
 package house;
 
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Before;
-import org.junit.Test;
-import server.beans.comunication.HouseInfo;
 
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-public class HouseTest extends JerseyTest {
+public class HouseTest extends JerseyTest {/*
     @Override
     protected Application configure() {
         final ResourceConfig rc = new ResourceConfig();
@@ -118,5 +99,5 @@ public class HouseTest extends JerseyTest {
     }
 
 
-
+*/
 }

@@ -10,10 +10,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.UnknownHostException;
+import java.io.IOException;
+import java.net.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +35,10 @@ public class AdminTest extends JerseyTest {
     private Admin admin;
 
     @Before
-    public void init() throws MalformedURLException, UnknownHostException {
+    public void init() throws IOException {
         URI uri=target().getUri();
-        admin=new Admin(InetAddress.getByName(uri.toURL().getHost()).getHostAddress(),uri.getPort());
+        ServerSocket s=new ServerSocket(0);
+        admin=new Admin(InetAddress.getByName(uri.toURL().getHost()).getHostAddress(),uri.getPort(),s);
     }
 
     @Test

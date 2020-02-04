@@ -1,10 +1,20 @@
 package house;
 
 import house.Boost.BoostManager;
+import house.Coordinator.Coordinator;
+import house.Message.Message;
+import house.Message.MessageReceiver;
+import house.Message.MessageSender;
+import house.Message.MessageType;
+import house.houseListManager.HouseList;
 import house.smartMeter.SmartMeterSimulator;
+import server.beans.comunication.HouseInfo;
 
+import javax.ws.rs.client.ClientBuilder;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.Scanner;
 
 
 //see if args contains setup data
@@ -16,27 +26,101 @@ import java.net.ServerSocket;
 //enter the network
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        int id=1;
-        String ip="127.0.0.1";
-        int port=1340;
-        String url="http://"+ip+":"+port;
-        ServerSocket socket=new ServerSocket(0);
-        House house=new House(id,socket,ip,port);
+    public static void main(String[] args)  {
+        Thread.currentThread().setName("Main-application");
+        Scanner fromUser;
         try {
-            house.register();
+            fromUser = new Scanner(System.in);
+            initialSetup(args);
         }catch (Exception e){
-            System.out.println("CONNECTION WITH SERVER FAILED");
+            System.err.println("UNABLE TO PERFORM INITIAL SETUP CHECK THAT ALL THE PARAMETERS ARE CORRECT");
+            System.out.println("USAGE Main id localPort serverIP serverPort");
+            e.printStackTrace();
             return;
         }
-        SmartMeterSimulator smartMeterSimulator=new SmartMeterSimulator(id+"",new SlidingBuffer(house));
-        BoostManager.setSmartMeter(smartMeterSimulator);
+        if (!joinTheNetwork()) {
+            return;
+        }
+        SmartMeterSimulator smartMeterSimulator=new SmartMeterSimulator(Configuration.houseInfo.getId()+"",new SlidingBuffer());
+        Configuration.smartMeterSimulator=smartMeterSimulator;
         smartMeterSimulator.start();
-
-
-        System.out.println("PRESS A KEY TO EXIT");
-        System.in.read();
-        house.unregister();
+        while (true) {
+            System.out.println("PRESS A Q TO EXIT");
+            System.out.println("PRESS A B TO BOOST");
+            String input=fromUser.nextLine().toUpperCase().trim();
+            if(input.equals("Q")){
+                Configuration.isStopping=true;
+                break;
+            }
+            if(input.equals("B")){
+                BoostManager.getInstance().request();
+            }
+        }
+        leaveTheNetwork();
+        Configuration.messageReceiver.stopMeNotSoGently();
+        Configuration.smartMeterSimulator.stopMeGently();
         System.out.println("GOODBYE");
+
     }
+
+    private static void initialSetup(String[] args) throws IOException {
+        int id = Integer.parseInt(args[0]);
+        int localPort = Integer.parseInt(args[1]);
+        String ip = args[2];
+        int port = Integer.parseInt(args[3]);
+        String url = "http://" + ip + ":" + port;
+        ServerSocket socket = new ServerSocket(localPort);
+        Configuration.acceptingSocket = socket;
+        Configuration.houseInfo = new HouseInfo(id, socket.getLocalPort(), InetAddress.getLocalHost().getHostAddress());
+        Configuration.serverBaseURL = url;
+        Configuration.toServer = ClientBuilder.newClient();
+        HouseList.getInstance().addObserver(BoostManager.getInstance());
+        HouseList.getInstance().addObserver(Coordinator.getInstance());
+        MessageReceiver messageReceiver = new MessageReceiver(socket);
+        Configuration.messageReceiver = messageReceiver;
+        Configuration.isStopping = false;
+        messageReceiver.start();
+    }
+
+    private static boolean joinTheNetwork() {
+        try {
+            HouseInfo[] list= CommunicationWithServer.register();
+            for (HouseInfo h: list) {
+                HouseList.getInstance().add(h);
+            }
+            if (list.length==1){
+                Coordinator.getInstance().setCoordinator(list[0], TimeManager.getTime());
+            }else {
+                Coordinator.getInstance().requestCoordinator();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("CONNECTION WITH SERVER FAILED CHECK THAT ALL THE PARAMETERS ARE CORRECT");
+            try {
+                Configuration.acceptingSocket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            Configuration.messageReceiver.stopMeNotSoGently();
+            return false;
+        }
+        Message welcomeMessage=new Message(MessageType.WELCOME, Configuration.houseInfo);
+        MessageSender.sendToEveryBody(welcomeMessage);
+        System.out.println("CONNECTED TO THE NETWORK");
+        return true;
+    }
+
+    private static void leaveTheNetwork() {
+        CommunicationWithServer.unregister();
+        Message message=new Message(MessageType.GOODBYE, Configuration.houseInfo);
+        MessageSender.sendToEveryBody(message);
+        System.out.println("DISCONNECTED FROM THE NETWORK");
+        HouseList.getInstance().clean();
+    }
+
+    public static void recovery(){
+        leaveTheNetwork();
+        joinTheNetwork();
+    }
+
 }

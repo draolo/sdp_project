@@ -7,5 +7,8 @@ public enum MessageType {
     COORDINATOR_REQUEST,
     COORDINATOR_REPLY,
     BOOST_REQUEST,
-    BOOST_ACK
+    BOOST_ACK,
+    DEAD,
+    ELECTION,
+    ELECTION_ALIVE
 }

@@ -18,6 +18,7 @@ public abstract class Simulator extends Thread {
         this.type = type;
         this.buffer = buffer;
         this.midnight = computeMidnightMilliseconds();
+        this.setName("simulator");
     }
 
     public void stopMeGently() {

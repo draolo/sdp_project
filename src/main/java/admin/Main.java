@@ -1,21 +1,40 @@
 package admin;
 
+import admin.Notification.NotificationReceiverThread;
 import server.beans.comunication.GlobalMeasurement;
 import server.beans.comunication.HouseInfo;
 import server.beans.comunication.LocalMeasurement;
 import server.beans.comunication.Stats;
 
 import javax.ws.rs.ProcessingException;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        // TODO: 17/01/2020 fetch input from inline invocation or direct ask to user
-        int port=1340;
-        String ip="127.0.0.1";
-        Admin admin=new Admin(ip,port);
+    public static void main(String[] args) throws IOException {
+        int serverPort;
+        String serverIp;
+        int localPort;
+        try {
+            serverPort=Integer.parseInt(args[2]);
+            serverIp=args[1];
+            localPort=Integer.parseInt(args[0]);
+        }catch (Exception e){
+            System.out.println("INVALID PARAMETER");
+            System.out.println("USAGE: Main localPort serverIp serverPort");
+            e.printStackTrace();
+            return;
+        }
+
+        ServerSocket serverSocket=new ServerSocket(localPort);
+        Admin admin=new Admin(serverIp,serverPort,serverSocket);
         Scanner userInput = new Scanner( System.in );
-        //admin.registerNotification()
+        NotificationReceiverThread receiver=new NotificationReceiverThread(serverSocket);
+        receiver.start();
+        if(!admin.subscribe()){
+            System.out.println("NOTIFICATION SERVICE NOT AVAILABLE");
+        }
         do {
             try {
                 printMenu();
@@ -75,7 +94,10 @@ public class Main {
                         break;
                     }
                     case 0: {
-                        //admin.unregisterNotification()
+                        if (!admin.unsubscribe()){
+                            System.err.println("FAILED TO UNSUBSCRIBE TO NOTIFICATION SERVICE");
+                        }
+                        receiver.stopMeGently();
                         return;
                     }
                     default: {

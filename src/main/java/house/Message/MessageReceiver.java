@@ -1,15 +1,28 @@
 package house.Message;
 
+import house.Configuration;
+
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MessageReceiver extends Thread{
     ServerSocket socket;
-    boolean stop;
+    volatile boolean stop = false;
 
     public MessageReceiver(ServerSocket socket) {
         this.socket = socket;
-        stop=false;
+        this.setName("unique message receiver");
+    }
+
+    public void stopMeNotSoGently() {
+        stop = true;
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("FAILED TO CLOSE THE SOCKET");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -20,7 +33,11 @@ public class MessageReceiver extends Thread{
                 MessageDispatcher messageDispatcher=new MessageDispatcher(s);
                 messageDispatcher.start();
             } catch (Exception e) {
-                e.printStackTrace();
+                if(Configuration.isStopping){
+                    break;
+                }else {
+                    e.printStackTrace();
+                }
             }
         }
     }
