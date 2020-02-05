@@ -57,10 +57,14 @@ public class MeasurementManager implements EnterLeaveObserver {
             measurements.put(localMeasurement.getId(), localMeasurement);
             fresh.put(localMeasurement.getId(), true);
             Logger.getGlobal().finer(this.toString());
-            if (Coordinator.getInstance().getStatus() == CoordinatorStatus.COORDINATOR && areAllFresh()) {
+            if (areAllFresh()) {
                 Logger.getGlobal().fine("ALL MEASUREMENT ARE FRESH "+localMeasurement);
                 GlobalMeasurement globalMeasurement = this.globalValue();
-                CommunicationWithServer.sendGlobalMeasurement(globalMeasurement);
+                System.out.format("GLOBAL CONSUME %.3f kW%n",globalMeasurement.getValue());
+                if(Coordinator.getInstance().getStatus() == CoordinatorStatus.COORDINATOR) {
+                    Logger.getGlobal().fine("SEND STATS TO THE SERVER");
+                    CommunicationWithServer.sendGlobalMeasurement(globalMeasurement);
+                }
                 fresh.replaceAll((k, v) -> false);
                 Logger.getGlobal().fine("RESET MEASUREMENT");
                 Logger.getGlobal().fine(this.toString());
