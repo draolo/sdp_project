@@ -2,6 +2,7 @@
 package house;
 
 import house.Boost.BoostManager;
+import house.Boost.BoostStatus;
 import house.Coordinator.Coordinator;
 import house.Message.Message;
 import house.Message.MessageReceiver;
@@ -118,6 +119,7 @@ public class Main {
 
     private static void leaveTheNetwork() {
         CommunicationWithServer.unregister();
+        BoostManager.getInstance().setStatus(BoostStatus.NOT_IN_USE);
         Message message=new Message(MessageType.GOODBYE, Configuration.houseInfo);
         MessageSender.sendToEveryBody(message);
         System.out.println("DISCONNECTED FROM THE NETWORK");
