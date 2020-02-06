@@ -79,22 +79,20 @@ public class ElectionManager {
 
     public synchronized void receiveElectionRequest(HouseInfo from){
         switch (status){
-            case LEADER:{
+            case LEADER:
+            case ELECTION_START: {
                 if (Configuration.houseInfo.getId()>from.getId()){
                     Message message=new Message(MessageType.ELECTION_ALIVE, Configuration.houseInfo);
                     MessageSender.sendTo(message,from);
                 }
+                break;
             }case ELECTION_END:{
                 if (Configuration.houseInfo.getId()>from.getId()) {
                     Message message = new Message(MessageType.ELECTION_ALIVE, Configuration.houseInfo);
                     MessageSender.sendTo(message, from);
                     beginElection();
                 }
-            }case ELECTION_START:{
-                if (Configuration.houseInfo.getId()>from.getId()){
-                    Message message=new Message(MessageType.ELECTION_ALIVE, Configuration.houseInfo);
-                    MessageSender.sendTo(message,from);
-                }
+                break;
             }
         }
     }
