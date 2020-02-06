@@ -170,7 +170,7 @@ public class BoostManager implements EnterLeaveObserver {
 
     @Override
     public synchronized void onLeave(HouseInfo h) {
-        if (status==BoostStatus.AWAIT){
+        if (status==BoostStatus.AWAIT&&!Configuration.isStopping){
             BoostAck mockACK= new BoostAck(h, actual);
             getAck(mockACK);
         }
